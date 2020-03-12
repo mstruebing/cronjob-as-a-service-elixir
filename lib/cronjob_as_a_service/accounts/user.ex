@@ -6,11 +6,15 @@ defmodule CronjobAsAService.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias CronjobAsAService.Jobs.Job
+
   schema "users" do
     field(:email, :string)
     field(:password, :string, virtual: true)
     field(:password_hash, :string)
     field(:token, :string)
+
+    has_many(:jobs, Job)
 
     timestamps()
   end
