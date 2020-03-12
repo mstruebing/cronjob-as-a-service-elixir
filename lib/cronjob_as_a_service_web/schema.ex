@@ -50,6 +50,12 @@ defmodule CronjobAsAServiceWeb.Schema do
       resolve(&JobResolver.create/3)
     end
 
+    field :delete_job, :job do
+      arg(:job_id, non_null(:id))
+
+      resolve(&JobResolver.delete/3)
+    end
+
     field :login, :session do
       arg(:email, non_null(:string))
       arg(:password, non_null(:string))
