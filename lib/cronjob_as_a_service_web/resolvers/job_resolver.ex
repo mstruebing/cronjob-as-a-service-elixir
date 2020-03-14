@@ -3,16 +3,18 @@ defmodule CronjobAsAServiceWeb.JobResolver do
   This module defines the resolvers for users.
   """
 
+  import Crontab.CronExpression
+
   alias CronjobAsAService.Jobs
 
   def create(_root, args, %{context: %{current_user: current_user}}) do
-    Jobs.create_job()
+    {_, next_run} = Crontab.Scheduler.get_next_run_date(~e[#{args.schedule}])
 
     %{
       command: args.command,
       schedule: args.schedule,
       last_run: DateTime.utc_now(),
-      next_run: DateTime.utc_now(),
+      next_run: next_run,
       user_id: current_user.id
     }
     |> Jobs.create_job()
@@ -32,15 +34,11 @@ defmodule CronjobAsAServiceWeb.JobResolver do
 
   def delete(_root, %{job_id: job_id}, %{context: %{current_user: current_user}}) do
     jobs = Jobs.list_jobs_by_user_id(current_user.id)
-    IO.inspect(job_id)
-    IO.inspect(jobs)
     job = Enum.find(jobs, fn job -> job.id == String.to_integer(job_id) end)
-    IO.inspect(job)
 
     if job == nil do
       {:error, "job not owned or not found"}
     else
-      IO.inspect(job)
       Jobs.delete_job(job)
     end
   end

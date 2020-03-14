@@ -20,7 +20,7 @@ defmodule CronjobAsAService.Mixfile do
   def application do
     [
       mod: {CronjobAsAService.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:crontab, :logger, :runtime_tools]
     ]
   end
 
@@ -46,7 +46,8 @@ defmodule CronjobAsAService.Mixfile do
       {:bcrypt_elixir, "~> 2.0"},
       {:cors_plug, "~> 2.0"},
       {:plug_cowboy, "~> 1.0"},
-      {:jason, "~> 1.1.2"}
+      {:jason, "~> 1.1.2"},
+      {:crontab, "~> 1.1.10"}
     ]
   end
 
