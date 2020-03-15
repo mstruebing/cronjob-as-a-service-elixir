@@ -30,6 +30,15 @@ defmodule CronjobAsAService.Jobs do
     Repo.all(query)
   end
 
+  def list_runnable_jobs do
+    query =
+      from(j in Job,
+        where: j.next_run <= fragment("now()")
+      )
+
+    Repo.all(query)
+  end
+
   @doc """
   Gets a single job.
 

@@ -11,9 +11,10 @@ defmodule CronjobAsAService.Application do
       # Start the Ecto repository
       supervisor(CronjobAsAService.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(CronjobAsAServiceWeb.Endpoint, [])
+      supervisor(CronjobAsAServiceWeb.Endpoint, []),
       # Start your own worker by calling: CronjobAsAService.Worker.start_link(arg1, arg2, arg3)
       # worker(CronjobAsAService.Worker, [arg1, arg2, arg3]),
+      %{id: Runner, start: {CronjobAsAService.Runner, :start_link, []}}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
