@@ -6,9 +6,9 @@ defmodule CronjobAsAService.JobsTest do
   describe "jobs" do
     alias CronjobAsAService.Jobs.Job
 
-    @valid_attrs %{command: "some command", last_run: "2010-04-17 14:00:00.000000Z", next_run: "2010-04-17 14:00:00.000000Z", schedule: "some schedule"}
-    @update_attrs %{command: "some updated command", last_run: "2011-05-18 15:01:01.000000Z", next_run: "2011-05-18 15:01:01.000000Z", schedule: "some updated schedule"}
-    @invalid_attrs %{command: nil, last_run: nil, next_run: nil, schedule: nil}
+    @valid_attrs %{url: "some url", last_run: "2010-04-17 14:00:00.000000Z", next_run: "2010-04-17 14:00:00.000000Z", schedule: "some schedule"}
+    @update_attrs %{url: "some updated url", last_run: "2011-05-18 15:01:01.000000Z", next_run: "2011-05-18 15:01:01.000000Z", schedule: "some updated schedule"}
+    @invalid_attrs %{url: nil, last_run: nil, next_run: nil, schedule: nil}
 
     def job_fixture(attrs \\ %{}) do
       {:ok, job} =
@@ -31,7 +31,7 @@ defmodule CronjobAsAService.JobsTest do
 
     test "create_job/1 with valid data creates a job" do
       assert {:ok, %Job{} = job} = Jobs.create_job(@valid_attrs)
-      assert job.command == "some command"
+      assert job.url == "some url"
       assert job.last_run == DateTime.from_naive!(~N[2010-04-17 14:00:00.000000Z], "Etc/UTC")
       assert job.next_run == DateTime.from_naive!(~N[2010-04-17 14:00:00.000000Z], "Etc/UTC")
       assert job.schedule == "some schedule"
@@ -45,7 +45,7 @@ defmodule CronjobAsAService.JobsTest do
       job = job_fixture()
       assert {:ok, job} = Jobs.update_job(job, @update_attrs)
       assert %Job{} = job
-      assert job.command == "some updated command"
+      assert job.url == "some updated url"
       assert job.last_run == DateTime.from_naive!(~N[2011-05-18 15:01:01.000000Z], "Etc/UTC")
       assert job.next_run == DateTime.from_naive!(~N[2011-05-18 15:01:01.000000Z], "Etc/UTC")
       assert job.schedule == "some updated schedule"

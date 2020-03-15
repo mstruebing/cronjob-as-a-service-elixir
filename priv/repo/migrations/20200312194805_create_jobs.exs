@@ -3,7 +3,7 @@ defmodule CronjobAsAService.Repo.Migrations.CreateJobs do
 
   def change do
     create table(:jobs) do
-      add(:command, :string)
+      add(:url, :string)
       add(:schedule, :string)
       add(:next_run, :utc_datetime)
       add(:last_run, :utc_datetime)

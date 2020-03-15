@@ -3,7 +3,7 @@ defmodule CronjobAsAService.Jobs.Job do
   import Ecto.Changeset
 
   schema "jobs" do
-    field(:command, :string)
+    field(:url, :string)
     field(:last_run, :utc_datetime)
     field(:next_run, :utc_datetime)
     field(:schedule, :string)
@@ -16,7 +16,7 @@ defmodule CronjobAsAService.Jobs.Job do
   @doc false
   def changeset(job, attrs) do
     job
-    |> cast(attrs, [:command, :schedule, :next_run, :last_run, :user_id])
-    |> validate_required([:command, :schedule, :next_run, :last_run, :user_id])
+    |> cast(attrs, [:url, :schedule, :next_run, :last_run, :user_id])
+    |> validate_required([:url, :schedule, :next_run, :last_run, :user_id])
   end
 end
