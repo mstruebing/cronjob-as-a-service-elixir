@@ -8,8 +8,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "elm-webpack-loader": "^6.0.1",
     "next": "9.3.0",
     "react": "16.13.0",
-    "react-dom": "16.13.0"
-  }
+    "react-dom": "16.13.0",
+    "react-elm-components": "^1.1.0"
+  },
+  "devDependencies": {}
 }
