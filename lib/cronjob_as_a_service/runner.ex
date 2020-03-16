@@ -4,6 +4,7 @@ defmodule CronjobAsAService.Runner do
   import Crontab.CronExpression
 
   alias CronjobAsAService.Jobs
+  alias CronjobAsAService.Http
 
   def start_link do
     GenServer.start_link(__MODULE__, %{})
@@ -30,9 +31,17 @@ defmodule CronjobAsAService.Runner do
   end
 
   defp run(job) do
-    IO.puts("Running Job: #{job.id}")
-
+    last_run = DateTime.utc_now()
     {_, next_run} = Crontab.Scheduler.get_next_run_date(~e[#{job.schedule}])
-    Jobs.update_job(job, %{next_run: next_run, last_run: DateTime.utc_now()})
+
+    case Http.call(job.url) do
+      {:ok} ->
+        IO.puts("#{job.id}: Successfull called #{job.url}")
+
+      {:error} ->
+        IO.puts("#{job.id}: Failure calling #{job.url}")
+    end
+
+    Jobs.update_job(job, %{next_run: next_run, last_run: last_run})
   end
 end

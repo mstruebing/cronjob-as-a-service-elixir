@@ -47,7 +47,8 @@ defmodule CronjobAsAService.Mixfile do
       {:cors_plug, "~> 2.0"},
       {:plug_cowboy, "~> 1.0"},
       {:jason, "~> 1.1.2"},
-      {:crontab, "~> 1.1.10"}
+      {:crontab, "~> 1.1.10"},
+      {:httpoison, "~> 1.6"}
     ]
   end
 

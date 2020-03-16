@@ -11,7 +11,7 @@ defmodule CronjobAsAServiceWeb.JobResolver do
     {_, next_run} = Crontab.Scheduler.get_next_run_date(~e[#{args.schedule}])
 
     %{
-      url: args.url,
+      url: URI.encode(args.url),
       schedule: args.schedule,
       last_run: DateTime.utc_now(),
       next_run: next_run,
