@@ -1,7 +1,10 @@
 import Head from "next/head";
-import Elm from "react-elm-components";
 
-import Timer from "../app/Timer.elm";
+import wrap from "@elm-react/component";
+
+import ElmApp from "../app/Main.elm";
+
+const WrappedApp = wrap(ElmApp);
 
 const App = () => (
     <div className="container">
@@ -12,10 +15,10 @@ const App = () => (
 
         <main>
             <div>
-                <Elm src={Timer.Elm.Main} />
+                <WrappedApp />
             </div>
-		</main>
-	</div>
-)
+        </main>
+    </div>
+);
 
 export default App;
