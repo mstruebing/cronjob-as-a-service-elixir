@@ -1,15 +1,48 @@
-module Main exposing (Model, Msg(..), init, main, subscriptions, timeToString, update, view)
+module Main exposing (main)
 
+import Auth
 import Browser
-import Html exposing (..)
-import Task
-import Time
+import Html exposing (Html)
 
 
+type alias Model =
+    { auth : Auth.Model
+    }
 
--- MAIN
+
+type Msg
+    = AuthMsg Auth.Msg
+    | NoOp
 
 
+init : () -> ( Model, Cmd Msg )
+init _ =
+    let
+        ( authModel, authCmd ) =
+            Auth.init
+    in
+    ( { auth = authModel }
+    , Cmd.batch
+        [ Cmd.map AuthMsg <| authCmd
+        ]
+    )
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
+        AuthMsg subMsg ->
+            let
+                ( authModel, authCmd ) =
+                    Auth.update subMsg model.auth
+            in
+            ( { model | auth = authModel }, Cmd.map AuthMsg <| authCmd )
+
+
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
@@ -19,79 +52,18 @@ main =
         }
 
 
-
--- MODEL
-
-
-type alias Model =
-    { zone : Time.Zone
-    , time : Time.Posix
-    }
-
-
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( Model Time.utc (Time.millisToPosix 0)
-    , Task.perform AdjustTimeZone Time.here
-    )
-
-
-
--- UPDATE
-
-
-type Msg
-    = Tick Time.Posix
-    | AdjustTimeZone Time.Zone
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        Tick newTime ->
-            ( { model | time = newTime }
-            , Cmd.none
-            )
-
-        AdjustTimeZone newZone ->
-            ( { model | zone = newZone }
-            , Cmd.none
-            )
-
-
-
--- SUBSCRIPTIONS
-
-
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    Time.every 1000 Tick
-
-
-
--- VIEW
+subscriptions _ =
+    Sub.none
 
 
 view : Model -> Html Msg
 view model =
-    let
-        hour =
-            timeToString (Time.toHour model.zone model.time)
-
-        minute =
-            timeToString (Time.toMinute model.zone model.time)
-
-        second =
-            timeToString (Time.toSecond model.zone model.time)
-    in
-    case Time.posixToMillis model.time of
-        0 ->
-            h1 [] []
-
-        time ->
-            h1 [] [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
+    Html.div []
+        [ viewLoginForm model
+        ]
 
 
-timeToString : Int -> String
-timeToString int =
-    String.padLeft 2 '0' (String.fromInt int)
+viewLoginForm : Model -> Html Msg
+viewLoginForm { auth } =
+    Html.map AuthMsg <| Auth.loginForm auth

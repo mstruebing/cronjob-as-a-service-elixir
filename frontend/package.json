@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "generate": "cd app && ../node_modules/.bin/elm-graphql http://localhost:4000/graphl --base Api --output .",
+    "start-elm": "elm-live app/Main.elm -- --debug"
   },
   "dependencies": {
     "@elm-react/component": "^1.1.2",
@@ -14,5 +16,8 @@
     "react": "16.13.0",
     "react-dom": "16.13.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@dillonkearns/elm-graphql": "^4.0.2",
+    "elm-hot-webpack-loader": "^1.1.6"
+  }
 }
