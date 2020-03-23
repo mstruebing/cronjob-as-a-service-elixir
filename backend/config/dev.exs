@@ -46,6 +46,6 @@ config :cronjob_as_a_service, CronjobAsAService.Repo,
   pool_size: 10
 
 config :cors_plug,
-  origin: ["http://localhost:3000", "http://local:3000"],
+  origin: ["http://localhost:3000", "http://local:3000", "127.0.0.1", "http://127.0.0.1"],
   max_age: 86400,
   methods: ["OPTIONS", "POST"]

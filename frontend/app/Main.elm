@@ -3,15 +3,18 @@ module Main exposing (main)
 import Auth
 import Browser
 import Html exposing (Html)
+import Jobs
 
 
 type alias Model =
     { auth : Auth.Model
+    , jobs : Jobs.Model
     }
 
 
 type Msg
     = AuthMsg Auth.Msg
+    | JobsMsg Jobs.Msg
     | NoOp
 
 
@@ -20,10 +23,14 @@ init _ =
     let
         ( authModel, authCmd ) =
             Auth.init
+
+        ( jobsModel, jobsCmd ) =
+            Jobs.init
     in
-    ( { auth = authModel }
+    ( { auth = authModel, jobs = jobsModel }
     , Cmd.batch
         [ Cmd.map AuthMsg <| authCmd
+        , Cmd.map JobsMsg <| jobsCmd
         ]
     )
 
@@ -38,8 +45,35 @@ update msg model =
             let
                 ( authModel, authCmd ) =
                     Auth.update subMsg model.auth
+
+                jobsCmd =
+                    case subMsg of
+                        Auth.LoggedIn (Ok (Just token)) ->
+                            Jobs.fetchJobs authModel.token
+
+                        _ ->
+                            Cmd.none
             in
-            ( { model | auth = authModel }, Cmd.map AuthMsg <| authCmd )
+            ( { model | auth = authModel }
+            , Cmd.batch
+                [ Cmd.map AuthMsg <| authCmd
+                , Cmd.map JobsMsg <| jobsCmd
+                ]
+            )
+
+        JobsMsg subMsg ->
+            let
+                ( jobsModel, jobsCmd ) =
+                    Jobs.update subMsg model.jobs
+            in
+            ( { model | jobs = jobsModel }
+            , Cmd.batch
+                [ Cmd.map
+                    JobsMsg
+                  <|
+                    jobsCmd
+                ]
+            )
 
 
 main : Program () Model Msg
