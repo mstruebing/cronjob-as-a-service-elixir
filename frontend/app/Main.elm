@@ -95,7 +95,7 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ authView model
-        , jobsView model
+        , jobsView model.auth.token model
         ]
 
 
@@ -104,6 +104,6 @@ authView { auth } =
     Html.map AuthMsg <| Auth.view auth
 
 
-jobsView : Model -> Html Msg
-jobsView { jobs } =
-    Html.map JobsMsg <| Jobs.view jobs
+jobsView : String -> Model -> Html Msg
+jobsView token { jobs } =
+    Html.map JobsMsg <| Jobs.view token jobs

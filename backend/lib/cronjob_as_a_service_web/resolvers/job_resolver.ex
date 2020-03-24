@@ -32,9 +32,9 @@ defmodule CronjobAsAServiceWeb.JobResolver do
     {:error, "not logged in"}
   end
 
-  def delete(_root, %{job_id: job_id}, %{context: %{current_user: current_user}}) do
+  def delete(_root, %{id: id}, %{context: %{current_user: current_user}}) do
     jobs = Jobs.list_jobs_by_user_id(current_user.id)
-    job = Enum.find(jobs, fn job -> job.id == String.to_integer(job_id) end)
+    job = Enum.find(jobs, fn job -> job.id == String.to_integer(id) end)
 
     if job == nil do
       {:error, "job not owned or not found"}

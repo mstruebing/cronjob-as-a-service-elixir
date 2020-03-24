@@ -25,9 +25,9 @@ type alias CreateJobRequiredArguments =
     }
 
 
-createJob : CreateJobRequiredArguments -> SelectionSet decodesTo Api.Object.Job -> SelectionSet (Maybe decodesTo) RootMutation
+createJob : CreateJobRequiredArguments -> SelectionSet decodesTo Api.Object.Job -> SelectionSet decodesTo RootMutation
 createJob requiredArgs object_ =
-    Object.selectionForCompositeField "createJob" [ Argument.required "schedule" requiredArgs.schedule Encode.string, Argument.required "url" requiredArgs.url Encode.string ] object_ (identity >> Decode.nullable)
+    Object.selectionForCompositeField "createJob" [ Argument.required "schedule" requiredArgs.schedule Encode.string, Argument.required "url" requiredArgs.url Encode.string ] object_ identity
 
 
 type alias CreateUserRequiredArguments =
@@ -42,12 +42,12 @@ createUser requiredArgs object_ =
 
 
 type alias DeleteJobRequiredArguments =
-    { jobId : Api.ScalarCodecs.Id }
+    { id : Api.ScalarCodecs.Id }
 
 
-deleteJob : DeleteJobRequiredArguments -> SelectionSet decodesTo Api.Object.Job -> SelectionSet (Maybe decodesTo) RootMutation
+deleteJob : DeleteJobRequiredArguments -> SelectionSet decodesTo Api.Object.Job -> SelectionSet decodesTo RootMutation
 deleteJob requiredArgs object_ =
-    Object.selectionForCompositeField "deleteJob" [ Argument.required "jobId" requiredArgs.jobId (Api.ScalarCodecs.codecs |> Api.Scalar.unwrapEncoder .codecId) ] object_ (identity >> Decode.nullable)
+    Object.selectionForCompositeField "deleteJob" [ Argument.required "id" requiredArgs.id (Api.ScalarCodecs.codecs |> Api.Scalar.unwrapEncoder .codecId) ] object_ identity
 
 
 type alias LoginRequiredArguments =

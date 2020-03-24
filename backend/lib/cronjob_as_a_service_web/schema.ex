@@ -42,15 +42,15 @@ defmodule CronjobAsAServiceWeb.Schema do
       resolve(&UserResolver.create/3)
     end
 
-    field :create_job, :job do
+    field :create_job, non_null(:job) do
       arg(:schedule, non_null(:string))
       arg(:url, non_null(:string))
 
       resolve(&JobResolver.create/3)
     end
 
-    field :delete_job, :job do
-      arg(:job_id, non_null(:id))
+    field :delete_job, non_null(:job) do
+      arg(:id, non_null(:id))
 
       resolve(&JobResolver.delete/3)
     end
