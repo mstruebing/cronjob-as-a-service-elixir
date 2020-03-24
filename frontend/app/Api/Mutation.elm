@@ -36,9 +36,9 @@ type alias CreateUserRequiredArguments =
     }
 
 
-createUser : CreateUserRequiredArguments -> SelectionSet decodesTo Api.Object.User -> SelectionSet (Maybe decodesTo) RootMutation
+createUser : CreateUserRequiredArguments -> SelectionSet decodesTo Api.Object.User -> SelectionSet decodesTo RootMutation
 createUser requiredArgs object_ =
-    Object.selectionForCompositeField "createUser" [ Argument.required "email" requiredArgs.email Encode.string, Argument.required "password" requiredArgs.password Encode.string ] object_ (identity >> Decode.nullable)
+    Object.selectionForCompositeField "createUser" [ Argument.required "email" requiredArgs.email Encode.string, Argument.required "password" requiredArgs.password Encode.string ] object_ identity
 
 
 type alias DeleteJobRequiredArguments =

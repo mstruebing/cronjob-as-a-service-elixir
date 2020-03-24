@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "generate": "cd app && ../node_modules/.bin/elm-graphql http://localhost:4000/graphl --base Api --output .",
+    "generate": "cd app && ../node_modules/.bin/elm-graphql http://localhost:4000/graphql --base Api --output .",
     "start-elm": "elm-live app/Main.elm -- --debug"
   },
   "dependencies": {

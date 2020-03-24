@@ -94,10 +94,16 @@ subscriptions _ =
 view : Model -> Html Msg
 view model =
     Html.div []
-        [ viewLoginForm model
+        [ authView model
+        , jobsView model
         ]
 
 
-viewLoginForm : Model -> Html Msg
-viewLoginForm { auth } =
-    Html.map AuthMsg <| Auth.loginForm auth
+authView : Model -> Html Msg
+authView { auth } =
+    Html.map AuthMsg <| Auth.view auth
+
+
+jobsView : Model -> Html Msg
+jobsView { jobs } =
+    Html.map JobsMsg <| Jobs.view jobs

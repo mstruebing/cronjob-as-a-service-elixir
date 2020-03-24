@@ -9,8 +9,6 @@ defmodule CronjobAsAServiceWeb.Router do
   scope "/graphql" do
     pipe_through(:api)
 
-    forward("/", Absinthe.Plug, schema: CronjobAsAServiceWeb.Schema)
-
     if Mix.env() == :dev do
       forward("/playground", Absinthe.Plug.GraphiQL,
         schema: CronjobAsAServiceWeb.Schema,
@@ -18,5 +16,7 @@ defmodule CronjobAsAServiceWeb.Router do
         context: %{pubsub: CronjobAsAServiceWeb.Endpoint}
       )
     end
+
+    forward("/", Absinthe.Plug, schema: CronjobAsAServiceWeb.Schema)
   end
 end

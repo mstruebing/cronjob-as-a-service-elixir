@@ -22,8 +22,3 @@ import Json.Decode as Decode
 token : SelectionSet (Maybe String) Api.Object.Session
 token =
     Object.selectionForField "(Maybe String)" "token" [] (Decode.string |> Decode.nullable)
-
-
-user : SelectionSet decodesTo Api.Object.User -> SelectionSet (Maybe decodesTo) Api.Object.Session
-user object_ =
-    Object.selectionForCompositeField "user" [] object_ (identity >> Decode.nullable)

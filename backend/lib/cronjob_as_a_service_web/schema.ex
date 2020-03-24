@@ -17,7 +17,6 @@ defmodule CronjobAsAServiceWeb.Schema do
 
   object :session do
     field(:token, :string)
-    field(:user, :user)
   end
 
   object :job do
@@ -30,13 +29,13 @@ defmodule CronjobAsAServiceWeb.Schema do
   end
 
   query do
-    field :jobs, list_of(:job) do
+    field :jobs, non_null(list_of(non_null(:job))) do
       resolve(&JobResolver.list/3)
     end
   end
 
   mutation do
-    field :create_user, :user do
+    field :create_user, non_null(:user) do
       arg(:email, non_null(:string))
       arg(:password, non_null(:string))
 

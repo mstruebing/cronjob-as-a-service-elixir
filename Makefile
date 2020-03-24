@@ -6,3 +6,6 @@ start-backend:
 
 start-frontend:
 	cd frontend && yarn dev
+
+generate:
+	cd frontend && yarn generate

@@ -1,9 +1,10 @@
-module Auth exposing (Model, Msg(..), init, login, loginForm, loginMutation, loginSelection, update)
+module Auth exposing (..)
 
 import Api.Mutation as Mutation
 import Api.Object
 import Api.Object.Session as Session
-import Api.Object.User as User
+import Api.Object.User
+import Api.ScalarCodecs
 import Graphql.Http exposing (mutationRequest, send)
 import Graphql.Operation exposing (RootMutation)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
@@ -17,7 +18,8 @@ type alias Model =
     { token : String
     , password : String
     , email : String
-    , handle : String
+    , registerPassword : String
+    , registerEmail : String
     }
 
 
@@ -26,8 +28,12 @@ type Msg
     | Logout
     | LoggedOut (Result (Graphql.Http.Error Bool) Bool)
     | LoggedIn (Result (Graphql.Http.Error (Maybe String)) (Maybe String))
-    | UpdateUsername String
+    | UpdateEmail String
     | UpdatePassword String
+    | Register
+    | UpdateRegisterPassword String
+    | UpdateRegisterEmail String
+    | Registered (Result (Graphql.Http.Error User) User)
 
 
 emptyModel : Model
@@ -35,7 +41,8 @@ emptyModel =
     { token = ""
     , password = ""
     , email = ""
-    , handle = ""
+    , registerPassword = ""
+    , registerEmail = ""
     }
 
 
@@ -67,11 +74,26 @@ update msg model =
         LoggedIn (Err _) ->
             ( model, Cmd.none )
 
-        UpdateUsername username ->
-            ( { model | email = username }, Cmd.none )
+        UpdateEmail email ->
+            ( { model | email = email }, Cmd.none )
 
         UpdatePassword password ->
             ( { model | password = password }, Cmd.none )
+
+        Register ->
+            ( model, Cmd.batch [ register model ] )
+
+        Registered (Ok user) ->
+            ( model, Cmd.none )
+
+        Registered (Err _) ->
+            ( model, Cmd.none )
+
+        UpdateRegisterEmail email ->
+            ( { model | registerEmail = email }, Cmd.none )
+
+        UpdateRegisterPassword password ->
+            ( { model | registerPassword = password }, Cmd.none )
 
 
 login : Model -> Cmd Msg
@@ -100,22 +122,34 @@ loginSelection =
         Session.token
 
 
+register : Model -> Cmd Msg
+register model =
+    registerMutation model
+        |> mutationRequest graphqlServerUrl
+        |> send Registered
+
+
+type alias User =
+    { id : Api.ScalarCodecs.Id
+    , email : String
+    }
+
+
+registerMutation : Model -> SelectionSet User RootMutation
+registerMutation { registerEmail, registerPassword } =
+    Mutation.createUser { email = registerEmail, password = registerPassword } registerSelection
+
+
+registerSelection : SelectionSet User Api.Object.User
+registerSelection =
+    SelectionSet.map2 User
+        Api.Object.User.id
+        Api.Object.User.email
+
+
 logoutMutation : Model -> SelectionSet Bool RootMutation
 logoutMutation _ =
     Mutation.logout
-
-
-loginForm : Model -> Html Msg
-loginForm model =
-    if model.token == "" then
-        Html.form [ onSubmit Login ]
-            [ Html.input [ onInput UpdateUsername, placeholder "email" ] []
-            , Html.input [ onInput UpdatePassword, type_ "password", placeholder "password" ] []
-            , Html.button [] [ Html.text "Login" ]
-            ]
-
-    else
-        loginInformation model
 
 
 logout : Model -> Cmd Msg
@@ -125,10 +159,39 @@ logout model =
         |> send LoggedOut
 
 
-loginInformation : Model -> Html Msg
-loginInformation model =
+view : Model -> Html Msg
+view model =
+    if model.token == "" then
+        Html.div []
+            [ viewLogin
+            , viewRegister
+            ]
+
+    else
+        viewLoggedIn model
+
+
+viewLogin : Html Msg
+viewLogin =
+    Html.form [ onSubmit Login ]
+        [ Html.input [ onInput UpdateEmail, placeholder "email" ] []
+        , Html.input [ onInput UpdatePassword, type_ "password", placeholder "password" ] []
+        , Html.button [] [ Html.text "Login" ]
+        ]
+
+
+viewLoggedIn : Model -> Html Msg
+viewLoggedIn model =
     Html.div []
         [ Html.p [] [ Html.text <| "logged in as: " ++ model.email ]
-        , Html.p [] [ Html.text <| "your token: " ++ model.token ]
         , Html.button [ onClick Logout ] [ Html.text "Logout" ]
+        ]
+
+
+viewRegister : Html Msg
+viewRegister =
+    Html.form [ onSubmit Register ]
+        [ Html.input [ onInput UpdateRegisterEmail, placeholder "email" ] []
+        , Html.input [ onInput UpdateRegisterPassword, type_ "password", placeholder "password" ] []
+        , Html.button [] [ Html.text "Register" ]
         ]

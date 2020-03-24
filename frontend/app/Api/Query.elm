@@ -19,6 +19,6 @@ import Graphql.SelectionSet exposing (SelectionSet)
 import Json.Decode as Decode exposing (Decoder)
 
 
-jobs : SelectionSet decodesTo Api.Object.Job -> SelectionSet (Maybe (List (Maybe decodesTo))) RootQuery
+jobs : SelectionSet decodesTo Api.Object.Job -> SelectionSet (List decodesTo) RootQuery
 jobs object_ =
-    Object.selectionForCompositeField "jobs" [] object_ (identity >> Decode.nullable >> Decode.list >> Decode.nullable)
+    Object.selectionForCompositeField "jobs" [] object_ (identity >> Decode.list)

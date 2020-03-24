@@ -14,7 +14,7 @@ defmodule CronjobAsAServiceWeb.UserResolver do
     with {:ok, user} <- AuthHelper.login_with_email_pass(email, password),
          {:ok, jwt, _} <- CronjobAsAService.Guardian.encode_and_sign(user),
          {:ok, _} <- CronjobAsAService.Accounts.store_token(user, jwt) do
-      {:ok, %{token: jwt, user: user}}
+      {:ok, %{token: jwt}}
     end
   end
 
