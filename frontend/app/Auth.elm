@@ -11,16 +11,18 @@ import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Html exposing (Html)
 import Html.Attributes exposing (class, placeholder, type_)
 import Html.Events exposing (onClick, onInput, onSubmit)
-import Shared exposing (graphqlServerUrl)
+import Shared exposing (errorToString, graphqlServerUrl)
 
 
 type alias Model =
     { token : String
-    , password : String
-    , email : String
-    , registerPassword : String
-    , registerEmail : String
+    , register : UserInput
+    , login : UserInput
     }
+
+
+type alias UserInput =
+    { email : String, password : String, error : String }
 
 
 type Msg
@@ -28,8 +30,8 @@ type Msg
     | Logout
     | LoggedOut (Result (Graphql.Http.Error Bool) Bool)
     | LoggedIn (Result (Graphql.Http.Error (Maybe String)) (Maybe String))
-    | UpdateEmail String
-    | UpdatePassword String
+    | UpdateLoginEmail String
+    | UpdateLoginPassword String
     | Register
     | UpdateRegisterPassword String
     | UpdateRegisterEmail String
@@ -39,10 +41,16 @@ type Msg
 emptyModel : Model
 emptyModel =
     { token = ""
+    , login = emptyUserInput
+    , register = emptyUserInput
+    }
+
+
+emptyUserInput : UserInput
+emptyUserInput =
+    { email = ""
     , password = ""
-    , email = ""
-    , registerPassword = ""
-    , registerEmail = ""
+    , error = ""
     }
 
 
@@ -51,6 +59,25 @@ init =
     ( emptyModel
     , Cmd.none
     )
+
+
+type UserInputType
+    = Email
+    | Password
+    | Error
+
+
+updateUserInput : UserInputType -> UserInput -> String -> UserInput
+updateUserInput userInputType userInput value =
+    case userInputType of
+        Email ->
+            { userInput | email = value }
+
+        Password ->
+            { userInput | password = value }
+
+        Error ->
+            { userInput | error = value }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -71,14 +98,14 @@ update msg model =
         LoggedIn (Ok Nothing) ->
             ( model, Cmd.none )
 
-        LoggedIn (Err _) ->
-            ( model, Cmd.none )
+        LoggedIn (Err err) ->
+            ( { model | login = updateUserInput Error model.login <| errorToString err }, Cmd.none )
 
-        UpdateEmail email ->
-            ( { model | email = email }, Cmd.none )
+        UpdateLoginEmail email ->
+            ( { model | login = updateUserInput Email model.login email }, Cmd.none )
 
-        UpdatePassword password ->
-            ( { model | password = password }, Cmd.none )
+        UpdateLoginPassword password ->
+            ( { model | login = updateUserInput Password model.login password }, Cmd.none )
 
         Register ->
             ( model, Cmd.batch [ register model ] )
@@ -86,24 +113,24 @@ update msg model =
         Registered (Ok user) ->
             ( model, Cmd.none )
 
-        Registered (Err _) ->
-            ( model, Cmd.none )
+        Registered (Err err) ->
+            ( { model | register = updateUserInput Error model.register <| errorToString err }, Cmd.none )
 
         UpdateRegisterEmail email ->
-            ( { model | registerEmail = email }, Cmd.none )
+            ( { model | register = updateUserInput Email model.register email }, Cmd.none )
 
         UpdateRegisterPassword password ->
-            ( { model | registerPassword = password }, Cmd.none )
+            ( { model | register = updateUserInput Password model.register password }, Cmd.none )
 
 
 login : Model -> Cmd Msg
 login model =
-    loginMutation model
+    loginMutation model.login
         |> mutationRequest graphqlServerUrl
         |> send LoggedIn
 
 
-loginMutation : Model -> SelectionSet (Maybe String) RootMutation
+loginMutation : UserInput -> SelectionSet (Maybe String) RootMutation
 loginMutation { email, password } =
     Mutation.login { email = email, password = password } loginSelection
 
@@ -124,7 +151,7 @@ loginSelection =
 
 register : Model -> Cmd Msg
 register model =
-    registerMutation model
+    registerMutation model.register
         |> mutationRequest graphqlServerUrl
         |> send Registered
 
@@ -135,9 +162,9 @@ type alias User =
     }
 
 
-registerMutation : Model -> SelectionSet User RootMutation
-registerMutation { registerEmail, registerPassword } =
-    Mutation.createUser { email = registerEmail, password = registerPassword } registerSelection
+registerMutation : UserInput -> SelectionSet User RootMutation
+registerMutation { email, password } =
+    Mutation.createUser { email = email, password = password } registerSelection
 
 
 registerSelection : SelectionSet User Api.Object.User
@@ -163,31 +190,32 @@ view : Model -> Html Msg
 view model =
     if model.token == "" then
         Html.div [ class "auth" ]
-            [ viewRegister
-            , viewLogin
+            [ viewRegister model.register
+            , viewLogin model.login
             ]
 
     else
         viewLoggedIn model
 
 
-viewLogin : Html Msg
-viewLogin =
+viewLogin : UserInput -> Html Msg
+viewLogin { error } =
     Html.div [ class "login" ]
         [ Html.h1 [] [ Html.text "Login" ]
+        , viewErrors error
         , Html.form [ onSubmit Login ]
-            [ Html.input [ onInput UpdateEmail, placeholder "email" ] []
-            , Html.input [ onInput UpdatePassword, type_ "password", placeholder "password" ] []
+            [ Html.input [ onInput UpdateLoginEmail, placeholder "email" ] []
+            , Html.input [ onInput UpdateLoginPassword, type_ "password", placeholder "password" ] []
             , Html.button [] [ Html.text "Login" ]
             ]
         ]
 
 
-viewRegister : Html Msg
-viewRegister =
+viewRegister : UserInput -> Html Msg
+viewRegister { error } =
     Html.div [ class "register" ]
-        [ Html.h1 []
-            [ Html.text "Register" ]
+        [ Html.h1 [] [ Html.text "Register" ]
+        , viewErrors error
         , Html.form [ onSubmit Register ]
             [ Html.input [ onInput UpdateRegisterEmail, placeholder "email" ] []
             , Html.input [ onInput UpdateRegisterPassword, type_ "password", placeholder "password" ] []
@@ -199,6 +227,19 @@ viewRegister =
 viewLoggedIn : Model -> Html Msg
 viewLoggedIn model =
     Html.div []
-        [ Html.p [] [ Html.text <| "logged in as: " ++ model.email ]
+        [ Html.p [] [ Html.text <| "logged in as: " ++ model.login.email ]
         , Html.button [ onClick Logout ] [ Html.text "Logout" ]
         ]
+
+
+viewErrors : String -> Html Msg
+viewErrors error =
+    if String.length error > 0 then
+        String.split
+            "\n"
+            error
+            |> List.map (\err -> Html.li [] [ Html.text err ])
+            |> Html.ul [ class "error" ]
+
+    else
+        Html.text ""
