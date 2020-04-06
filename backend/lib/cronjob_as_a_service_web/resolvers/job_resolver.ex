@@ -8,17 +8,22 @@ defmodule CronjobAsAServiceWeb.JobResolver do
   alias CronjobAsAService.Jobs
 
   def create(_root, args, %{context: %{current_user: current_user}}) do
-    IO.puts(current_user)
     {_, next_run} = Crontab.Scheduler.get_next_run_date(~e[#{args.schedule}])
 
-    %{
-      url: URI.encode(args.url),
-      schedule: args.schedule,
-      last_run: DateTime.utc_now(),
-      next_run: next_run,
-      user_id: current_user.id
-    }
-    |> Jobs.create_job()
+    count = Jobs.count_jobs_by_user_id(current_user.id)
+
+    if count >= 2 do
+      {:error, "only two cronjobs are currently allowed"}
+    else
+      %{
+        url: URI.encode(args.url),
+        schedule: args.schedule,
+        last_run: DateTime.utc_now(),
+        next_run: next_run,
+        user_id: current_user.id
+      }
+      |> Jobs.create_job()
+    end
   end
 
   def create(_root, _args, _info) do
