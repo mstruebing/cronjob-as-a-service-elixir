@@ -10,7 +10,7 @@ import Graphql.Http exposing (mutationRequest, queryRequest, send, withHeader)
 import Graphql.Operation exposing (RootMutation, RootQuery)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Html exposing (Html)
-import Html.Attributes exposing (class, placeholder, title, value)
+import Html.Attributes exposing (class, href, placeholder, target, title, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Shared exposing (graphqlServerUrl)
 
@@ -52,6 +52,31 @@ type Msg
 emptyModel : Model
 emptyModel =
     { jobs = [], newJob = { schedule = "", url = "" } }
+
+
+type alias Preset =
+    { cronExpression : String, text : String }
+
+
+presets : List Preset
+presets =
+    [ { cronExpression = "", text = "select a preset" }
+    , { cronExpression = "* * * * *", text = "every minute" }
+    , { cronExpression = "*/10 * * * *", text = "every 10 minutes" }
+    , { cronExpression = "0 * * * *", text = "every hour" }
+    , { cronExpression = "12 * * * *", text = "every 12 hours" }
+    , { cronExpression = "0 0 * * *", text = "every day" }
+    , { cronExpression = "0 0 * * 1-5", text = "every monday til friday" }
+    , { cronExpression = "0 0 * * 0", text = "every week" }
+    , { cronExpression = "0 0 1 1 *", text = "every year" }
+    ]
+
+
+viewPresets : List (Html Msg)
+viewPresets =
+    List.map
+        (\preset -> Html.option [ value preset.cronExpression ] [ Html.text preset.text ])
+        presets
 
 
 init : ( Model, Cmd Msg )
@@ -173,12 +198,8 @@ viewNewJob : NewJob -> String -> Html Msg
 viewNewJob { schedule, url } token =
     Html.form [ class "newJob", onSubmit <| CreateJob token ]
         [ Html.p [] [ Html.text "Create new job" ]
-        , Html.select [ onInput ChangePreset ]
-            [ Html.option [ value "" ] [ Html.text "Select a preset" ]
-            , Html.option [ value "* * * * *" ] [ Html.text "every minute" ]
-            , Html.option [ value "*/10 * * * *" ] [ Html.text "every 10 minutes" ]
-            , Html.option [ value "0 * * * *" ] [ Html.text "every hour" ]
-            ]
+        , Html.a [ href "https://crontab.guru/", target "_blank" ] [ Html.text "better explanation of the syntax" ]
+        , Html.select [ onInput ChangePreset ] viewPresets
         , Html.input [ placeholder "schedule", onInput UpdateNewJobSchedule, value schedule ] []
         , Html.input [ placeholder "url", onInput UpdateNewJobUrl, value url ] []
         , Html.button [] [ Html.text "create job" ]

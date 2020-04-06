@@ -447,6 +447,10 @@ blockquote footer {
     margin: 0 0.5em;
 }
 
+.newJob > select {
+    /* display: inline; */
+}
+
 .jobList {
     width: 100%;
     max-width: 100%;
