@@ -38,8 +38,8 @@ defmodule CronjobAsAService.Runner do
       {:ok} ->
         IO.puts("#{job.id}: Successfull called #{job.url}")
 
-      {:error} ->
-        IO.puts("#{job.id}: Failure calling #{job.url}")
+      {:error, msg} ->
+        IO.puts("#{job.id}: Failure calling #{job.url}, #{msg}")
     end
 
     Jobs.update_job(job, %{next_run: next_run, last_run: last_run})

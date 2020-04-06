@@ -4,12 +4,13 @@ import Api.Mutation as Mutation
 import Api.Object
 import Api.Object.Job
 import Api.Query as Query
+import Api.Scalar
 import Api.ScalarCodecs
 import Graphql.Http exposing (mutationRequest, queryRequest, send, withHeader)
 import Graphql.Operation exposing (RootMutation, RootQuery)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Html exposing (Html)
-import Html.Attributes exposing (placeholder, value)
+import Html.Attributes exposing (class, placeholder, title, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Shared exposing (graphqlServerUrl)
 
@@ -45,6 +46,7 @@ type Msg
     | JobCreated (Result (Graphql.Http.Error Job) Job)
     | UpdateNewJobUrl String
     | UpdateNewJobSchedule String
+    | ChangePreset String
 
 
 emptyModel : Model
@@ -109,6 +111,16 @@ update msg model =
             in
             ( { model | newJob = newNewJob }, Cmd.none )
 
+        ChangePreset schedule ->
+            let
+                oldNewJob =
+                    model.newJob
+
+                newNewJob =
+                    { oldNewJob | schedule = schedule }
+            in
+            ( { model | newJob = newNewJob }, Cmd.none )
+
 
 jobSelection : SelectionSet Job Api.Object.Job
 jobSelection =
@@ -152,24 +164,56 @@ view token { jobs, newJob } =
 
     else
         Html.div []
-            [ newJobForm token newJob
-            , Html.ul []
-                (List.map
-                    (\job ->
-                        Html.li []
-                            [ Html.text <| "schedule: " ++ job.schedule ++ " url: " ++ job.url
-                            , Html.button [ onClick <| DeleteJob token job.id ] [ Html.text "X" ]
-                            ]
-                    )
-                    jobs
-                )
+            [ viewNewJob newJob token
+            , viewJobsTable jobs token
             ]
 
 
-newJobForm : String -> NewJob -> Html Msg
-newJobForm token { schedule, url } =
-    Html.form [ onSubmit <| CreateJob token ]
-        [ Html.input [ placeholder "schedule", onInput UpdateNewJobSchedule, value schedule ] []
+viewNewJob : NewJob -> String -> Html Msg
+viewNewJob { schedule, url } token =
+    Html.form [ class "newJob", onSubmit <| CreateJob token ]
+        [ Html.p [] [ Html.text "Create new job" ]
+        , Html.select [ onInput ChangePreset ]
+            [ Html.option [ value "" ] [ Html.text "Select a preset" ]
+            , Html.option [ value "* * * * *" ] [ Html.text "every minute" ]
+            , Html.option [ value "*/10 * * * *" ] [ Html.text "every 10 minutes" ]
+            , Html.option [ value "0 * * * *" ] [ Html.text "every hour" ]
+            ]
+        , Html.input [ placeholder "schedule", onInput UpdateNewJobSchedule, value schedule ] []
         , Html.input [ placeholder "url", onInput UpdateNewJobUrl, value url ] []
         , Html.button [] [ Html.text "create job" ]
         ]
+
+
+viewJobsTable : List Job -> String -> Html Msg
+viewJobsTable jobs token =
+    viewJobTableHead
+        :: List.map (\job -> viewJobElement job token) jobs
+        |> Html.table [ class "jobList" ]
+
+
+viewJobTableHead : Html Msg
+viewJobTableHead =
+    Html.tr []
+        [ Html.th [] [ Html.text "url" ]
+        , Html.th [] [ Html.text "schedule" ]
+        , Html.th [] [ Html.text "last run" ]
+        , Html.th [] [ Html.text "next run" ]
+        , Html.th [] [ Html.text "delete" ]
+        ]
+
+
+viewJobElement : Job -> String -> Html Msg
+viewJobElement job token =
+    Html.tr []
+        [ Html.td [ class "jobUrl", title job.url ] [ Html.text job.url ]
+        , Html.td [] [ Html.text job.schedule ]
+        , Html.td [] [ Html.text <| extractDateTime job.last_run ]
+        , Html.td [] [ Html.text <| extractDateTime job.next_run ]
+        , Html.td [] [ Html.button [ onClick <| DeleteJob token job.id ] [ Html.text "X" ] ]
+        ]
+
+
+extractDateTime : Api.Scalar.DateTime -> String
+extractDateTime (Api.Scalar.DateTime s) =
+    s

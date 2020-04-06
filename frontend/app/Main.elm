@@ -94,7 +94,7 @@ subscriptions _ =
 view : Model -> Html Msg
 view model =
     Html.div []
-        [ authView model
+        [ Html.header [] [ authView model ]
         , jobsView model.auth.token model
         ]
 

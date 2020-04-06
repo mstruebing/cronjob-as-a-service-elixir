@@ -9,8 +9,11 @@ defmodule CronjobAsAService.Http do
             {:ok}
 
           true ->
-            {:error}
+            {:error, "status code #{status_code}"}
         end
+
+      _ ->
+        {:error, "can't call url"}
     end
   end
 end

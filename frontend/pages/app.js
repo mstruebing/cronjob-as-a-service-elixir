@@ -11,6 +11,7 @@ const App = () => (
         <Head>
             <title>Cronjob as a Service Application</title>
             <link rel="icon" href="/favicon.ico" />
+            <link rel="stylesheet" href="/mvp.css" />
         </Head>
 
         <main>

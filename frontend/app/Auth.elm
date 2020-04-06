@@ -9,7 +9,7 @@ import Graphql.Http exposing (mutationRequest, send)
 import Graphql.Operation exposing (RootMutation)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Html exposing (Html)
-import Html.Attributes exposing (placeholder, type_)
+import Html.Attributes exposing (class, placeholder, type_)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Shared exposing (graphqlServerUrl)
 
@@ -162,9 +162,9 @@ logout model =
 view : Model -> Html Msg
 view model =
     if model.token == "" then
-        Html.div []
-            [ viewLogin
-            , viewRegister
+        Html.div [ class "auth" ]
+            [ viewRegister
+            , viewLogin
             ]
 
     else
@@ -173,10 +173,26 @@ view model =
 
 viewLogin : Html Msg
 viewLogin =
-    Html.form [ onSubmit Login ]
-        [ Html.input [ onInput UpdateEmail, placeholder "email" ] []
-        , Html.input [ onInput UpdatePassword, type_ "password", placeholder "password" ] []
-        , Html.button [] [ Html.text "Login" ]
+    Html.div [ class "login" ]
+        [ Html.h1 [] [ Html.text "Login" ]
+        , Html.form [ onSubmit Login ]
+            [ Html.input [ onInput UpdateEmail, placeholder "email" ] []
+            , Html.input [ onInput UpdatePassword, type_ "password", placeholder "password" ] []
+            , Html.button [] [ Html.text "Login" ]
+            ]
+        ]
+
+
+viewRegister : Html Msg
+viewRegister =
+    Html.div [ class "register" ]
+        [ Html.h1 []
+            [ Html.text "Register" ]
+        , Html.form [ onSubmit Register ]
+            [ Html.input [ onInput UpdateRegisterEmail, placeholder "email" ] []
+            , Html.input [ onInput UpdateRegisterPassword, type_ "password", placeholder "password" ] []
+            , Html.button [] [ Html.text "Register" ]
+            ]
         ]
 
 
@@ -185,13 +201,4 @@ viewLoggedIn model =
     Html.div []
         [ Html.p [] [ Html.text <| "logged in as: " ++ model.email ]
         , Html.button [ onClick Logout ] [ Html.text "Logout" ]
-        ]
-
-
-viewRegister : Html Msg
-viewRegister =
-    Html.form [ onSubmit Register ]
-        [ Html.input [ onInput UpdateRegisterEmail, placeholder "email" ] []
-        , Html.input [ onInput UpdateRegisterPassword, type_ "password", placeholder "password" ] []
-        , Html.button [] [ Html.text "Register" ]
         ]

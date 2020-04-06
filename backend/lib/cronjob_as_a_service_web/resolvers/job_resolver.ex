@@ -8,6 +8,7 @@ defmodule CronjobAsAServiceWeb.JobResolver do
   alias CronjobAsAService.Jobs
 
   def create(_root, args, %{context: %{current_user: current_user}}) do
+    IO.puts(current_user)
     {_, next_run} = Crontab.Scheduler.get_next_run_date(~e[#{args.schedule}])
 
     %{
