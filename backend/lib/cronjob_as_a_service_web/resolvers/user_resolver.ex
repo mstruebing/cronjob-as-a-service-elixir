@@ -7,7 +7,11 @@ defmodule CronjobAsAServiceWeb.UserResolver do
   alias CronjobAsAService.AuthHelper
 
   def create(_root, args, _info) do
-    Accounts.create_user(args)
+    if Accounts.get_user_by_email(args.email) do
+      {:error, "email already registered"}
+    else
+      Accounts.create_user(args)
+    end
   end
 
   def login(_root, %{email: email, password: password}, _info) do
