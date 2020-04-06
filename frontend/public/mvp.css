@@ -447,8 +447,8 @@ blockquote footer {
     margin: 0 0.5em;
 }
 
-.newJob > select {
-    /* display: inline; */
+.newJob > a {
+    text-decoration: underline;
 }
 
 .jobList {
