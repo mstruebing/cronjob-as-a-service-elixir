@@ -196,10 +196,6 @@ view token model =
 
 viewNewJob : Model -> String -> Html Msg
 viewNewJob { jobs, newJob } token =
-    let
-        maxJobsReached =
-            List.length jobs >= 2
-    in
     Html.form [ class "newJob", onSubmit <| CreateJob token ]
         [ Html.p [] [ Html.text "Create new job" ]
         , Html.a [ href "https://crontab.guru/", target "_blank" ] [ Html.text "better explanation of the syntax" ]
@@ -207,15 +203,12 @@ viewNewJob { jobs, newJob } token =
         , Html.input [ placeholder "schedule", onInput UpdateNewJobSchedule, value newJob.schedule ] []
         , Html.input [ placeholder "url", onInput UpdateNewJobUrl, value newJob.url ] []
         , Html.button
-            [ disabled maxJobsReached
-            , title
-                (if maxJobsReached then
-                    "only two cronjobs allowed currently"
+            (if List.length jobs >= 2 then
+                [ disabled True, title "only two items allowed currently" ]
 
-                 else
-                    ""
-                )
-            ]
+             else
+                []
+            )
             [ Html.text "create job" ]
         ]
 
