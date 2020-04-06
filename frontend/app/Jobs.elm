@@ -10,7 +10,7 @@ import Graphql.Http exposing (mutationRequest, queryRequest, send, withHeader)
 import Graphql.Operation exposing (RootMutation, RootQuery)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Html exposing (Html)
-import Html.Attributes exposing (class, href, placeholder, target, title, value)
+import Html.Attributes exposing (class, disabled, href, placeholder, target, title, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Shared exposing (graphqlServerUrl)
 
@@ -183,26 +183,40 @@ createJob token { schedule, url } =
 
 
 view : String -> Model -> Html Msg
-view token { jobs, newJob } =
+view token model =
     if token == "" then
         Html.text ""
 
     else
         Html.div []
-            [ viewNewJob newJob token
-            , viewJobsTable jobs token
+            [ viewNewJob model token
+            , viewJobsTable model.jobs token
             ]
 
 
-viewNewJob : NewJob -> String -> Html Msg
-viewNewJob { schedule, url } token =
+viewNewJob : Model -> String -> Html Msg
+viewNewJob { jobs, newJob } token =
+    let
+        maxJobsReached =
+            List.length jobs >= 2
+    in
     Html.form [ class "newJob", onSubmit <| CreateJob token ]
         [ Html.p [] [ Html.text "Create new job" ]
         , Html.a [ href "https://crontab.guru/", target "_blank" ] [ Html.text "better explanation of the syntax" ]
         , Html.select [ onInput ChangePreset ] viewPresets
-        , Html.input [ placeholder "schedule", onInput UpdateNewJobSchedule, value schedule ] []
-        , Html.input [ placeholder "url", onInput UpdateNewJobUrl, value url ] []
-        , Html.button [] [ Html.text "create job" ]
+        , Html.input [ placeholder "schedule", onInput UpdateNewJobSchedule, value newJob.schedule ] []
+        , Html.input [ placeholder "url", onInput UpdateNewJobUrl, value newJob.url ] []
+        , Html.button
+            [ disabled maxJobsReached
+            , title
+                (if maxJobsReached then
+                    "only two cronjobs allowed currently"
+
+                 else
+                    ""
+                )
+            ]
+            [ Html.text "create job" ]
         ]
 
 
