@@ -15,7 +15,7 @@ defmodule CronjobAsAService.AuthHelper do
         {:error, "Incorrect login credentials"}
 
       true ->
-        {:error, :"User not found"}
+        {:error, :"Incorrect login credentials"}
     end
   end
 end

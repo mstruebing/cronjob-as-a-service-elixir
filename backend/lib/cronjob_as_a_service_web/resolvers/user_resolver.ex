@@ -8,7 +8,7 @@ defmodule CronjobAsAServiceWeb.UserResolver do
 
   def create(_root, args, _info) do
     if Accounts.get_user_by_email(args.email) do
-      {:error, "email already registered"}
+      {:error, "A user with this email is already registered"}
     else
       Accounts.create_user(args)
     end
