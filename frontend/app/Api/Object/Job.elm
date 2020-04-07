@@ -34,6 +34,11 @@ nextRun =
     Object.selectionForField "ScalarCodecs.DateTime" "nextRun" [] (Api.ScalarCodecs.codecs |> Api.Scalar.unwrapCodecs |> .codecDateTime |> .decoder)
 
 
+runs : SelectionSet Int Api.Object.Job
+runs =
+    Object.selectionForField "Int" "runs" [] Decode.int
+
+
 schedule : SelectionSet String Api.Object.Job
 schedule =
     Object.selectionForField "String" "schedule" [] Decode.string

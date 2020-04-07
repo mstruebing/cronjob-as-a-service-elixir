@@ -35,6 +35,7 @@ type alias Job =
     , next_run : Api.ScalarCodecs.DateTime
     , schedule : String
     , url : String
+    , runs : Int
     }
 
 
@@ -157,13 +158,14 @@ update msg model =
 
 jobSelection : SelectionSet Job Api.Object.Job
 jobSelection =
-    SelectionSet.map6 Job
+    SelectionSet.map7 Job
         Api.Object.Job.id
         Api.Object.Job.userId
         Api.Object.Job.lastRun
         Api.Object.Job.nextRun
         Api.Object.Job.schedule
         Api.Object.Job.url
+        Api.Object.Job.runs
 
 
 fetchJobs : String -> Cmd Msg
@@ -258,6 +260,7 @@ viewJobTableHead =
     Html.tr []
         [ Html.th [] [ Html.text "url" ]
         , Html.th [] [ Html.text "schedule" ]
+        , Html.th [] [ Html.text "runs" ]
         , Html.th [] [ Html.text "last run" ]
         , Html.th [] [ Html.text "next run" ]
         , Html.th [] [ Html.text "delete" ]
@@ -269,6 +272,7 @@ viewJobElement job token =
     Html.tr []
         [ Html.td [ class "jobUrl", title job.url ] [ Html.text job.url ]
         , Html.td [] [ Html.text job.schedule ]
+        , Html.td [] [ Html.text <| String.fromInt job.runs ]
         , Html.td [] [ Html.text <| extractDateTime job.last_run ]
         , Html.td [] [ Html.text <| extractDateTime job.next_run ]
         , Html.td [] [ Html.button [ onClick <| DeleteJob token job.id ] [ Html.text "X" ] ]

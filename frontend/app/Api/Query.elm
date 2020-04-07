@@ -19,6 +19,16 @@ import Graphql.SelectionSet exposing (SelectionSet)
 import Json.Decode as Decode exposing (Decoder)
 
 
+jobCount : SelectionSet Int RootQuery
+jobCount =
+    Object.selectionForField "Int" "jobCount" [] Decode.int
+
+
 jobs : SelectionSet decodesTo Api.Object.Job -> SelectionSet (List decodesTo) RootQuery
 jobs object_ =
     Object.selectionForCompositeField "jobs" [] object_ (identity >> Decode.list)
+
+
+runs : SelectionSet Int RootQuery
+runs =
+    Object.selectionForField "Int" "runs" [] Decode.int
