@@ -29,7 +29,8 @@ defmodule CronjobAsAServiceWeb.JobResolver do
             schedule: args.schedule,
             last_run: DateTime.utc_now(),
             next_run: next_run,
-            user_id: current_user.id
+            user_id: current_user.id,
+            runs: 0
           }
           |> Jobs.create_job()
         rescue
@@ -63,5 +64,13 @@ defmodule CronjobAsAServiceWeb.JobResolver do
 
   def delete(_root, _args, _info) do
     {:error, "not logged in"}
+  end
+
+  def count(_root, _args, _info) do
+    {:ok, Jobs.count_jobs()}
+  end
+
+  def runs(_root, _args, _info) do
+    {:ok, Jobs.runs()}
   end
 end

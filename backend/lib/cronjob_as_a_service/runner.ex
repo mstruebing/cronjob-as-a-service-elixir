@@ -42,6 +42,6 @@ defmodule CronjobAsAService.Runner do
         IO.puts("#{job.id}: Failure calling #{job.url}, #{msg}")
     end
 
-    Jobs.update_job(job, %{next_run: next_run, last_run: last_run})
+    Jobs.update_job(job, %{next_run: next_run, last_run: last_run, runs: job.runs + 1})
   end
 end

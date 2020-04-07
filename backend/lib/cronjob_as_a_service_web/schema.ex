@@ -26,11 +26,20 @@ defmodule CronjobAsAServiceWeb.Schema do
     field(:schedule, non_null(:string))
     field(:last_run, non_null(:datetime))
     field(:next_run, non_null(:datetime))
+    field(:runs, non_null(:integer))
   end
 
   query do
     field :jobs, non_null(list_of(non_null(:job))) do
       resolve(&JobResolver.list/3)
+    end
+
+    field :job_count, non_null(:integer) do
+      resolve(&JobResolver.count/3)
+    end
+
+    field :runs, non_null(:integer) do
+      resolve(&JobResolver.runs/3)
     end
   end
 

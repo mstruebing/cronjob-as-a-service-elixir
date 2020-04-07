@@ -39,6 +39,14 @@ defmodule CronjobAsAService.Jobs do
     Repo.aggregate(query, :count, :id)
   end
 
+  def count_jobs do
+    Repo.one(from(j in Job, select: count(j.id)))
+  end
+
+  def runs do
+    Repo.one(from(j in Job, select: sum(j.runs)))
+  end
+
   def list_runnable_jobs do
     query =
       from(j in Job,

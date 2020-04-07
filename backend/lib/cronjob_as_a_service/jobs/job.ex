@@ -7,6 +7,7 @@ defmodule CronjobAsAService.Jobs.Job do
     field(:last_run, :utc_datetime)
     field(:next_run, :utc_datetime)
     field(:schedule, :string)
+    field(:runs, :integer)
 
     belongs_to(:user, User, foreign_key: :user_id)
 
@@ -16,7 +17,7 @@ defmodule CronjobAsAService.Jobs.Job do
   @doc false
   def changeset(job, attrs) do
     job
-    |> cast(attrs, [:url, :schedule, :next_run, :last_run, :user_id])
-    |> validate_required([:url, :schedule, :next_run, :last_run, :user_id])
+    |> cast(attrs, [:url, :schedule, :next_run, :last_run, :user_id, :runs])
+    |> validate_required([:url, :schedule, :next_run, :last_run, :user_id, :runs])
   end
 end
