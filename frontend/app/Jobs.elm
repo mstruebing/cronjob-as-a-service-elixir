@@ -40,6 +40,7 @@ type alias Job =
 
 type Msg
     = NoOp
+    | FetchJobs String
     | JobsFetched (Result (Graphql.Http.Error (List Job)) (List Job))
     | DeleteJob String Api.ScalarCodecs.Id
     | JobDeleted (Result (Graphql.Http.Error Job) Job)
@@ -95,6 +96,9 @@ update msg model =
     case msg of
         NoOp ->
             ( model, Cmd.none )
+
+        FetchJobs token ->
+            ( model, Cmd.batch [ fetchJobs token ] )
 
         JobsFetched (Ok jobs) ->
             ( { model | jobs = jobs }, Cmd.none )
@@ -194,6 +198,7 @@ view token model =
     else
         Html.div []
             [ viewNewJob model token
+            , viewRefreshJobs token
             , viewJobsTable model.jobs token
             ]
 
@@ -234,6 +239,11 @@ viewNewJob { jobs, newJob } token =
           else
             Html.text ""
         ]
+
+
+viewRefreshJobs : String -> Html Msg
+viewRefreshJobs token =
+    Html.button [ class "reload", onClick <| FetchJobs token, title "refresh" ] [ Html.text "↻" ]
 
 
 viewJobsTable : List Job -> String -> Html Msg

@@ -482,3 +482,8 @@ table tr th, table tr td {
 .login {
     flex-grow: 1;
 }
+
+.reload {
+    float: right;
+    margin-bottom: 1em;
+}
