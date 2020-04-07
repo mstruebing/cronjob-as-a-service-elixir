@@ -9,7 +9,7 @@ import Graphql.Http exposing (mutationRequest, send)
 import Graphql.Operation exposing (RootMutation)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Html exposing (Html)
-import Html.Attributes exposing (class, placeholder, type_)
+import Html.Attributes exposing (class, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Shared exposing (errorToString, graphqlServerUrl)
 
@@ -111,7 +111,14 @@ update msg model =
             ( model, Cmd.batch [ register model ] )
 
         Registered (Ok user) ->
-            ( model, Cmd.none )
+            let
+                registerModel =
+                    model.register
+
+                updatedRegisterModel =
+                    { registerModel | email = "", password = "", error = "successfull registered" }
+            in
+            ( { model | register = updatedRegisterModel }, Cmd.none )
 
         Registered (Err err) ->
             ( { model | register = updateUserInput Error model.register <| errorToString err }, Cmd.none )
@@ -212,13 +219,13 @@ viewLogin { error } =
 
 
 viewRegister : UserInput -> Html Msg
-viewRegister { error } =
+viewRegister { error, email, password } =
     Html.div [ class "register" ]
         [ Html.h1 [] [ Html.text "Register" ]
         , viewErrors error
         , Html.form [ onSubmit Register ]
-            [ Html.input [ onInput UpdateRegisterEmail, placeholder "email" ] []
-            , Html.input [ onInput UpdateRegisterPassword, type_ "password", placeholder "password" ] []
+            [ Html.input [ onInput UpdateRegisterEmail, placeholder "email", value email ] []
+            , Html.input [ onInput UpdateRegisterPassword, type_ "password", placeholder "password", value password ] []
             , Html.button [] [ Html.text "Register" ]
             ]
         ]
