@@ -8,21 +8,33 @@ defmodule CronjobAsAServiceWeb.JobResolver do
   alias CronjobAsAService.Jobs
 
   def create(_root, args, %{context: %{current_user: current_user}}) do
-    {_, next_run} = Crontab.Scheduler.get_next_run_date(~e[#{args.schedule}])
-
     count = Jobs.count_jobs_by_user_id(current_user.id)
 
-    if count >= 2 do
-      {:error, "only two cronjobs are currently allowed"}
-    else
-      %{
-        url: URI.encode(args.url),
-        schedule: args.schedule,
-        last_run: DateTime.utc_now(),
-        next_run: next_run,
-        user_id: current_user.id
-      }
-      |> Jobs.create_job()
+    cond do
+      args.url == "" ->
+        {:error, "url can't be empty"}
+
+      args.schedule == "" ->
+        {:error, "schedule can't be empty"}
+
+      count >= 2 ->
+        {:error, "only two cronjobs are currently allowed"}
+
+      true ->
+        try do
+          {_, next_run} = Crontab.Scheduler.get_next_run_date(~e[#{args.schedule}])
+
+          %{
+            url: URI.encode(args.url),
+            schedule: args.schedule,
+            last_run: DateTime.utc_now(),
+            next_run: next_run,
+            user_id: current_user.id
+          }
+          |> Jobs.create_job()
+        rescue
+          x -> {:error, "not a valid crontab string"}
+        end
     end
   end
 

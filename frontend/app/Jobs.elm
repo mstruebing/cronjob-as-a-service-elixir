@@ -18,6 +18,7 @@ import Shared exposing (graphqlServerUrl)
 type alias Model =
     { jobs : List Job
     , newJob : NewJob
+    , newJobError : String
     }
 
 
@@ -51,7 +52,10 @@ type Msg
 
 emptyModel : Model
 emptyModel =
-    { jobs = [], newJob = { schedule = "", url = "" } }
+    { jobs = []
+    , newJob = { schedule = "", url = "" }
+    , newJobError = ""
+    }
 
 
 type alias Preset =
@@ -196,6 +200,20 @@ view token model =
 
 viewNewJob : Model -> String -> Html Msg
 viewNewJob { jobs, newJob } token =
+    let
+        error =
+            if List.length jobs >= 2 then
+                "only two items allowed currently"
+
+            else if newJob.schedule == "" then
+                "schedule can't be empty"
+
+            else if not (String.startsWith "http://" newJob.url) && not (String.startsWith "https://" newJob.url) then
+                "url not valid"
+
+            else
+                ""
+    in
     Html.form [ class "newJob", onSubmit <| CreateJob token ]
         [ Html.p [] [ Html.text "Create new job" ]
         , Html.a [ href "https://crontab.guru/", target "_blank" ] [ Html.text "better explanation of the syntax" ]
@@ -203,13 +221,18 @@ viewNewJob { jobs, newJob } token =
         , Html.input [ placeholder "schedule", onInput UpdateNewJobSchedule, value newJob.schedule ] []
         , Html.input [ placeholder "url", onInput UpdateNewJobUrl, value newJob.url ] []
         , Html.button
-            (if List.length jobs >= 2 then
-                [ disabled True, title "only two items allowed currently" ]
+            (if error /= "" then
+                [ disabled True, title error ]
 
              else
                 []
             )
             [ Html.text "create job" ]
+        , if error /= "" then
+            Html.p [ class "error" ] [ Html.text error ]
+
+          else
+            Html.text ""
         ]
 
 
