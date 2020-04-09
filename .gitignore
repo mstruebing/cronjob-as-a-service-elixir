@@ -18,3 +18,5 @@ erl_crash.dump
 # variables.
 backend/config/*.secret.exs
 _build
+
+frontend/.next
