@@ -5,6 +5,8 @@ defmodule CronjobAsAService.Repo.Migrations.CreateJobs do
     create table(:jobs) do
       add(:url, :string)
       add(:schedule, :string)
+      add(:method, :string)
+      add(:body, :string)
       add(:runs, :integer)
       add(:next_run, :utc_datetime)
       add(:last_run, :utc_datetime)

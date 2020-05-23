@@ -34,7 +34,7 @@ defmodule CronjobAsAService.Runner do
     last_run = DateTime.utc_now()
     {_, next_run} = Crontab.Scheduler.get_next_run_date(~e[#{job.schedule}])
 
-    case Http.call(job.url) do
+    case Http.call(job.method, job.url, job.body) do
       {:ok} ->
         IO.puts("#{job.id}: Successfull called #{job.url}")
 

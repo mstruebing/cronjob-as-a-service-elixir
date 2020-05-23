@@ -23,6 +23,8 @@ defmodule CronjobAsAServiceWeb.Schema do
     field(:id, non_null(:id))
     field(:user_id, non_null(:id))
     field(:url, non_null(:string))
+    field(:method, non_null(:string))
+    field(:body, :string)
     field(:schedule, non_null(:string))
     field(:last_run, non_null(:datetime))
     field(:next_run, non_null(:datetime))
@@ -54,6 +56,8 @@ defmodule CronjobAsAServiceWeb.Schema do
     field :create_job, non_null(:job) do
       arg(:schedule, non_null(:string))
       arg(:url, non_null(:string))
+      arg(:method, non_null(:string))
+      arg(:body, :string)
 
       resolve(&JobResolver.create/3)
     end

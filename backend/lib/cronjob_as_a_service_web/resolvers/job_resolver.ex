@@ -20,12 +20,17 @@ defmodule CronjobAsAServiceWeb.JobResolver do
       count >= 2 ->
         {:error, "only two cronjobs are currently allowed"}
 
+      !Enum.member?(["GET", "POST", "PUT", "DELETE", "PATCH"], args.method) ->
+        {:error, "#{args.method} is not a valid http method to use"}
+
       true ->
         try do
           {_, next_run} = Crontab.Scheduler.get_next_run_date(~e[#{args.schedule}])
 
           %{
             url: URI.encode(args.url),
+            method: args.method,
+            body: args.body,
             schedule: args.schedule,
             last_run: DateTime.utc_now(),
             next_run: next_run,
